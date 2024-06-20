@@ -18,8 +18,18 @@ https://blog.lleavesg.top/article/Android-Seccomp#c40e15ab4db1407f9e9e0a11163115
 
 ## 使用说明
 
-直接将js注入即可实现对openat的监控，需要在logcat过滤native查看结果
+直接将js注入即可实现对openat的监控，命令如下：
+```js
+frida -U -f  com.moji.mjweather -l sigaction.js
+```
 
+需要在logcat过滤native查看结果；即打开控制台，输入命令：
+```shell
+adb shell logcat | grep native
+```
+
+
+## 实战说明
 在实战时根据自己需求修改CModule中的`define`，其中`target_nr` 是目标系统调用号。
 
 在拦截到系统调用后会再次进行系统调用，防止再次被拦截，就需要一个寄存器来放一个标识符`SECMAGIC` ，避免反复调用`crash`。`SECMAGIC_POS` 即为对应系统调用所不需要的第一个寄存器，比如`openat`需要三个参数，那么`SECMAGIC_POS` 填3即可，因为寄存器从`x0`开始，`args[3]`即为第四个寄存器。
